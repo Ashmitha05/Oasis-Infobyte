@@ -34,4 +34,6 @@ The primary aim of this project is to:
 - Collects essential inputs like name, source, destination, date of journey, and seat number.
 - Validates inputs and confirms booking after submission.
 - Stores all booking data in a central database.
+### Output
+![Image](https://github.com/user-attachments/assets/4ed190f7-eab2-4dd8-bef7-7753c08c8f3b)
 
