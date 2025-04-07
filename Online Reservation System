@@ -1,0 +1,191 @@
+import java.sql.*;
+import java.util.Scanner;
+
+public class OnlineReservationSystem {
+
+    // Connect to SQLite Database
+    private static Connection connect() {
+        try {
+            Class.forName("org.sqlite.JDBC"); // Load SQLite Driver
+            return DriverManager.getConnection("jdbc:sqlite:reservation.db");
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("SQLite JDBC Driver not found", e);
+        } catch (SQLException e) {
+            throw new RuntimeException("Database connection error", e);
+        }
+    }
+
+    // Create Tables for Users and Reservations
+    public static void createTables() {
+        String usersTable = "CREATE TABLE IF NOT EXISTS users (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "username TEXT UNIQUE, " +
+                "password TEXT)";
+
+        String reservationsTable = "CREATE TABLE IF NOT EXISTS reservations (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "user_id INTEGER, " +
+                "train_number TEXT, " +
+                "train_name TEXT, " +
+                "class_type TEXT, " +
+                "date_of_journey TEXT, " +
+                "from_place TEXT, " +
+                "destination TEXT, " +
+                "pnr TEXT UNIQUE, " +
+                "FOREIGN KEY(user_id) REFERENCES users(id))";
+
+        try (Connection conn = connect();
+             Statement stmt = conn.createStatement()) {
+            stmt.execute(usersTable);
+            stmt.execute(reservationsTable);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // User Login
+    public static int login(String username, String password) {
+        String sql = "SELECT id FROM users WHERE username = ? AND password = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            ResultSet rs = pstmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    // User Registration
+    public static void registerUser(String username, String password) {
+        String sql = "INSERT INTO users (username, password) VALUES (?, ?)";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, username);
+            pstmt.setString(2, password);
+            pstmt.executeUpdate();
+            System.out.println("User registered successfully!");
+        } catch (SQLException e) {
+            System.out.println("Username already exists.");
+        }
+    }
+
+    // Reserve Ticket
+    public static void reserveTicket(int userId, String trainNumber, String trainName, String classType,
+                                     String dateOfJourney, String fromPlace, String destination) {
+        String pnr = userId + trainNumber + dateOfJourney.replace("-", ""); // Generate a unique PNR
+        String sql = "INSERT INTO reservations (user_id, train_number, train_name, class_type, date_of_journey, from_place, destination, pnr) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setInt(1, userId);
+            pstmt.setString(2, trainNumber);
+            pstmt.setString(3, trainName);
+            pstmt.setString(4, classType);
+            pstmt.setString(5, dateOfJourney);
+            pstmt.setString(6, fromPlace);
+            pstmt.setString(7, destination);
+            pstmt.setString(8, pnr);
+            pstmt.executeUpdate();
+            System.out.println("Reservation Successful! Your PNR is " + pnr);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Cancel Ticket
+    public static void cancelTicket(String pnr) {
+        String sql = "DELETE FROM reservations WHERE pnr = ?";
+        try (Connection conn = connect();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, pnr);
+            int rowsAffected = pstmt.executeUpdate();
+            if (rowsAffected > 0) {
+                System.out.println("Reservation Canceled Successfully");
+            } else {
+                System.out.println("PNR not found");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Main Function to Handle User Interactions
+    public static void main(String[] args) {
+        createTables();
+        Scanner scanner = new Scanner(System.in);
+
+        System.out.println("1. Login");
+        System.out.println("2. Register");
+        System.out.print("Choose an option: ");
+        int option = scanner.nextInt();
+        scanner.nextLine();
+
+        int userId = -1;
+        if (option == 1) {
+            System.out.print("Enter username: ");
+            String username = scanner.nextLine();
+            System.out.print("Enter password: ");
+            String password = scanner.nextLine();
+
+            userId = login(username, password);
+            if (userId != -1) {
+                System.out.println("Login Successful!");
+            } else {
+                System.out.println("Invalid Username or Password.");
+                return;
+            }
+        } else if (option == 2) {
+            System.out.print("Enter username: ");
+            String username = scanner.nextLine();
+            System.out.print("Enter password: ");
+            String password = scanner.nextLine();
+            registerUser(username, password);
+            return;
+        } else {
+            System.out.println("Invalid option.");
+            return;
+        }
+
+        while (true) {
+            System.out.println("\n1. Reserve Ticket");
+            System.out.println("2. Cancel Ticket");
+            System.out.println("3. Exit");
+            System.out.print("Choose an option: ");
+            int choice = scanner.nextInt();
+            scanner.nextLine();
+
+            if (choice == 1) {
+                System.out.print("Enter Train Number: ");
+                String trainNumber = scanner.nextLine();
+                System.out.print("Enter Train Name: ");
+                String trainName = scanner.nextLine();
+                System.out.print("Enter Class Type: ");
+                String classType = scanner.nextLine();
+                System.out.print("Enter Date of Journey (YYYY-MM-DD): ");
+                String dateOfJourney = scanner.nextLine();
+                System.out.print("Enter From Place: ");
+                String fromPlace = scanner.nextLine();
+                System.out.print("Enter Destination: ");
+                String destination = scanner.nextLine();
+
+                reserveTicket(userId, trainNumber, trainName, classType, dateOfJourney, fromPlace, destination);
+            } else if (choice == 2) {
+                System.out.print("Enter PNR to cancel: ");
+                String pnr = scanner.nextLine();
+                cancelTicket(pnr);
+            } else if (choice == 3) {
+                System.out.println("Exiting System.");
+                break;
+            } else {
+                System.out.println("Invalid Option");
+            }
+        }
+        scanner.close();
+    }
+}
