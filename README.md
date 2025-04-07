@@ -36,4 +36,5 @@ The primary aim of this project is to:
 - Stores all booking data in a central database.
 ### Output
 ![Image](https://github.com/user-attachments/assets/4ed190f7-eab2-4dd8-bef7-7753c08c8f3b)
+![Image](https://github.com/user-attachments/assets/3075bdb4-6cb7-460f-91af-f3f4220b4002)
 
