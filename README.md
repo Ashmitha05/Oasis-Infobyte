@@ -1,11 +1,10 @@
-# 🧾 Online Reservation System
-
 ## 👩‍💻 Developed by: G.A.Ashmitha  
 🎓 Internship Domain: Java Development  
 🏢 Company: Oasis Infobyte
 
 ---
 ## TASK 1:
+# 🧾 Online Reservation System
 ## 📖 Project Overview
 
 The **Online Reservation System** is a Java-based application designed to simplify and digitalize the reservation process. The system provides users with an intuitive interface to reserve tickets by securely logging in and accessing the system. It stores data in a centralized database, enabling authorized access and efficient management of booking details.
@@ -102,6 +101,7 @@ Working on this project has helped me:
 ![Image](https://github.com/user-attachments/assets/a0206eb5-a9a5-42bb-a7a1-df100eebfa8e)
 ![Image](https://github.com/user-attachments/assets/12bde16b-c986-4505-af83-765b4dccdf7c)
 ![Image](https://github.com/user-attachments/assets/7453c22c-6fe3-467e-8a96-f9b8bb573199)
+![Image](https://github.com/user-attachments/assets/b60cdfac-0740-4ade-be7b-5b567c54ef0a)
 
 
 
